@@ -1,0 +1,231 @@
+p {
+    display: block;
+    -webkit-margin-before: 0.5em;
+    -webkit-margin-after: 0.5em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+}
+
+/*#compareCmdDiv {
+    height: 38px;
+    display:block;
+}*/
+/*#compareCmdDiv__compareCmdUL{
+  float:right;
+}*/
+.compareContainer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 97%;
+    overflow-y: auto;
+}
+
+#editCommentDialog,
+#rootComment,
+#showAllComments,
+.rootComment {
+    color: white;
+    font-size: 11px;
+    white-space: normal;
+}
+/*#commentPreviewLabel {
+    display: block;
+    margin-top: 10px;
+}
+
+#commentPreview {
+    display: block;
+    border: 1px solid gray;
+    overflow-y: auto;
+    min-height: 40px;
+    max-height: 200px;
+}*/
+
+/*#editCommentFooter {
+    display: block;
+    text-align: right;
+    margin-top: 10px;
+    height: 20px;
+}*/
+
+.button {
+  width:60px;
+  height:30px;
+}
+
+.contentContainer {
+    vertical-align: top;
+    margin:10px 0px 5px 0px;
+    padding:5px;
+}
+
+.contentContainer > .nameAndTimeContainer {
+    padding-bottom: 8px;
+}
+
+.commentContentContainer{
+  padding:5px;
+}
+
+.commentId {
+    display: none;
+}
+
+.commentArea {
+    width: 100%;
+    border: 3px;
+}
+
+.commentSubmit {
+    padding: 5px 10px 5px 10px;
+    border: solid #000 1px;
+    text-decoration: none;
+}
+
+.commentContainer {
+    padding: 16px 0 16px 16px;
+    border-bottom: solid 1px #344a4f;
+}
+
+.commentContainer > .avatarContainer, .commentContainer > .contentContainer {
+    display: inline-block;
+}
+
+.contentContainer > .nameAndTimeContainer > .commenterName {
+    margin-right: 10px;
+}
+
+.commentContainer > .avatarContainer {
+    float: left;
+    margin-right: 8px;
+}
+
+.commentContainer > .avatarContainer > .avatar {
+    height: 26px;
+    width: 26px;
+}
+
+.commenterAvatar img{
+  height:1.2em;
+}
+/*
+.compare-sprite-inline-2way:before{ content: '\E04C'; }
+.compare-sprite-inline-2way:after{ content: '\E04A'; }*/
+
+.orionSwitch{
+  border: 1px solid #ccc;
+}
+.orionSwitchSwitch{
+  background: #ccc;
+  border: 1px solid #ccc;
+}
+.orionSwitchInner {
+	display: block;
+	width: 200%;
+	margin-left: 0;
+margin-top:1.5px;
+	text-align: left;
+	-moz-transition: margin 0.2s ease-in 0s;
+	-webkit-transition: margin 0.2s ease-in 0s;
+	-o-transition: margin 0.2s ease-in 0s;
+	transition: margin 0.2s ease-in 0s;
+}
+
+.orionSwitchInner:before {
+		padding-left: 3px;
+}
+.orionSwitchInner:after {
+	padding-left: 5px;
+  padding-right:0;
+}
+.orionSwitchSwitch {
+	width: calc(50% - 1px);
+}
+
+.core-sprite-whitespace{
+  font-size: 15px;
+}
+
+/*Color related properties*/
+
+.titleActionContainer, .statusContainer, .workingTarget{
+  background-color: #fcfcfc;
+}
+
+.ruler.overview{
+    background-color: #fcfcfc;
+}
+
+#editCommentDialog,
+#rootComment,
+#showAllComments,
+.rootComment {
+    /*background-color: #292c2f;*/
+    background-color:#fcfcfc;
+    color:rgba(0,0,0,0.85);
+    border-left: solid 1px #c3c3c3;
+    border-right: solid 1px #c3c3c3;
+    border-bottom: solid 1px #c3c3c3;
+}
+.commentSubmit {
+  background: #4a90e2;
+}
+.commentCancel {
+  background:#eeeeee;
+}
+
+.commentHighlight {
+    background-color: #ededed;
+}
+.commentHighlightLine {
+  background-color: #ededed;
+}
+
+.lineHighlight {
+  background-color: #ededed;
+}
+
+.commentContentContainer{
+  background-color: white;
+  color:black;
+}
+
+.commentArea {
+    background-color: white;
+    color:black;
+    outline: -webkit-focus-ring-color auto 5px;
+}
+
+.commentSubmit {
+    color: #ffffff;
+}
+
+.commentContainer {
+    background-color: #335041;
+}
+.contentContainer, .contentForm {
+  border-top: solid 1px #c3c3c3;
+}
+
+.contentContainer > .nameAndTimeContainer > .commenterName {
+    color: #bfbfbf;
+}
+
+.contentContainer > .nameAndTimeContainer > .commentTime {
+    color: #646c70;
+}
+.contentContainer > .nameAndTimeContainer{
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.replyContainer > .container > .commentContainer {
+    background-color: #304146;
+}
+
+.orionSwitchInner:before {
+  	background-color:rgba(255,0,0,0);
+}
+.orionSwitchInner:after {
+  	background-color:rgba(255,0,0,0);
+}

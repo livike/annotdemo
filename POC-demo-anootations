@@ -1,0 +1,411 @@
+<!doctype html>
+<html>
+<head>
+	<title>Orion Compare Editor Sample</title>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			background-color: #ededed;
+		}
+		.lineHighlight{
+			outline: 2px dotted black;
+		}
+		.lineHighlightGutter{
+			background-image: url('problem.gif');;
+		}
+		.lineHighlightGutter1{
+			background-color: red;
+		}
+		.lineHighlightGutter2{
+			border-width: 3px;
+		}
+		.compareContainer {
+			position: absolute;
+			top: 80px;  /* $ToolbarHeight + 1 */
+			bottom: 0;
+			width: 99%;
+			overflow-y: auto;
+			margin-left:5px;
+			border:1px solid #bebebe;
+		}
+		.commentHighlight{
+			background-color: #f1922e;
+		}
+		.commentHighlightGutter{
+			background-color: #f1922e;;
+		}
+	</style>
+	<!--
+    <link rel="stylesheet" type="text/css" href="built-compare.css"/>
+	<script src="require.min.js"></script>
+	<script>
+    require(["built-compare.min.js"], function(Compare) {
+	-->
+    <link rel="stylesheet" type="text/css" href="built-compare.css"/>
+		<link rel="stylesheet" type="text/css" href="comments.css"/>
+    <script src="loadSamples.js"></script>
+		<script src="jquery-3.2.1.min.js"></script>
+		<script src="mustache.min.js"></script>
+		<script src="http://requirejs.org/docs/release/2.1.4/minified/require.js"></script>
+
+	<script>
+	/*eslint-env browser, amd*/
+    require(["built-compare-amd.js"], function(Compare) {
+	var document = window.document;
+
+	/** Buttons */
+	var bCompare = document.getElementById("doCompare"); //$NON-NLS-0$
+	var bLoadSample = document.getElementById("loadSample"); //$NON-NLS-0$
+	var bAnimateDiffs = document.getElementById("animateDiffs"); //$NON-NLS-0$
+	var bAnimateInterval = document.getElementById("animateInterval"); //$NON-NLS-0$
+	var bgotoLine = document.getElementById("gotoLine1"); //$NON-NLS-0$
+
+	var bshowTheComments = document.getElementById("showTheComments");
+	var bhideTheComments = document.getElementById("hideTheComments");
+
+	var compareType = "byTwoContents"; //$NON-NLS-0$
+	var contentType = "js"; //$NON-NLS-0$
+
+
+    var options = {
+        parentDivId: "compareParentDiv", //$NON-NLS-0$
+        newFile: {
+						Name: "left." + contentType,
+            readonly: true,
+            Content: sampleLeft
+        },
+        oldFile: {
+						Name: "right." + contentType,
+            readonly: true,
+            Content: sampleRight
+        },
+				comments: sampleComments
+    };
+
+	var compare = new Compare(options, "compareCmdDiv", "twoWay", true/*toggleable*/); //$NON-NLS-1$ //$NON-NLS-0$
+
+	function _createCommentDiv(comment){
+	var template = $('#showCommentTemplate').html().trim();
+	var div = document.createElement("div");
+
+	div.innerHTML = Mustache.render(template, {
+			isDraft: comment.isDraft,
+			url: "http://www.gravatar.com/avatar/eda7273d344fd5af7d547fda96737d83.jpg?d=identicon&r=pg&s=26",
+			author: comment.author.name,
+			date: comment.updated,
+			message: comment.message,
+			id: comment.id,
+			root:comment.root,
+			replies:comment.replies
+	});
+	var container = div.firstChild;
+	return container;
+}
+
+//recursively constructs the comment DOM node (comment, replies, (hidden) edit and reply forms)
+function createDiv2Insert(comment){
+	var debth = 0;
+	var div = document.createElement("div");
+	div.id = "rootComment";
+	var width = $('.textviewScroll:first').width() - 40;
+	div.setAttribute("style", "width: " + width + "px");
+
+	var rootdiv = document.createElement("div");
+	rootdiv.id = comment.root;
+		function recursivefunction(comment){
+			debth++;
+				for (var key in comment){
+					if(key ==="id"){
+						var container = _createCommentDiv(comment);
+						var commentdiv = container.querySelector("#"+comment.id);
+					}
+					var savedebth = debth;
+					if (key === "replies" && comment[key].length > 0){
+						var arr = comment[key];
+						var replylength = comment[key].length;
+
+						for (var i = 0;i < replylength; i++) {
+							var replydiv = recursivefunction(comment[key][i]);
+							replydiv.setAttribute("style", "padding-left: " + debth*20 + "px");
+							container.appendChild(replydiv);
+							debth = savedebth;
+						}
+					}
+				}
+				return container;
+			}//recursivefunction
+
+		rootdiv.appendChild(recursivefunction(comment));
+		div.appendChild(rootdiv);
+		return div;
+}
+function showTheComments(){
+	showComments("show");
+}
+
+function hideTheComments(){
+	showComments("hide");
+}
+
+function showComments(showhide) {
+			widget = compare.getCompareView().getWidget();
+		// Comments and highlighting
+		var editor = widget.getMainEditor();
+		var viewModel = editor.getTextView().getModel();
+		//annotationModel is the handler you add or remove you annotation models
+		var annotationModel = editor.getAnnotationModel();
+		if (annotationModel) {
+				//Get the line styler inside the editor
+				var annoStyler = editor.getAnnotationStyler();
+if(showhide == "show"){
+				//Add your annotation type to the editor
+				annoStyler.addAnnotationType("compare.customize.commentcontent");
+				annoStyler.addAnnotationType("compare.customize.linehighlight");
+
+				//Add the same annotation type ot the annotation ruler(gutter)
+				editor.getAnnotationRuler().addAnnotationType("compare.customize.commentcontent");
+				editor.getAnnotationRuler().addAnnotationType("compare.customize.linehighlight");
+
+				var commentAnnotations = [];
+				var highlightAnnotations = [];
+				var commentAnnotation, highlightAnnotation;
+
+				var comments = widget.options.comments;
+
+				for (var i = comments.length - 1; i >= 0; i--) {
+					comment = comments[i];
+
+						var startLineNumber = comment.startLine;
+						var endLineNumber = comment.endLine;
+						var startIndex = viewModel.getLineStart(startLineNumber);
+						var endIndex = viewModel.getLineStart(endLineNumber);
+						var div2Insert = createDiv2Insert(comment);
+
+						commentAnnotation =
+								{
+										start: endIndex,
+										end: endIndex,
+										endLineNumber: endLineNumber,
+										title: "",
+										type: "compare.customize.commentcontent",
+										html: "",
+										rangeStyle: {styleClass: "lineHighlight", node: div2Insert}
+								};
+
+						highlightAnnotation =
+								{
+										start: startIndex,
+										end: endIndex,
+										startLineNumber: startLineNumber,
+										endLineNumber: endLineNumber,
+										title: "",
+										type: "compare.customize.linehighlight",
+										html: "",
+										style: {styleClass: "commentHighlight"} //Gutter style at the line
+										,lineStyle: {styleClass: "commentHighlightLine"}
+								};
+								commentAnnotations.push(commentAnnotation);
+								highlightAnnotations.push(highlightAnnotation);
+				}
+				annotationModel.replaceAnnotations([], commentAnnotations);
+				annotationModel.replaceAnnotations([], highlightAnnotations);
+			} else{
+
+				annotationModel.removeAnnotations("compare.customize.commentcontent");
+				annotationModel.removeAnnotations("compare.customize.linehighlight");
+			}
+		}
+
+}
+
+
+	function onLoadSample() {
+		if(sampleLeft && sampleRight) {
+			var widget = compare.getCompareView().getWidget();
+			widget.options.oldFile.Content = sampleRight;
+			widget.options.newFile.Content = sampleLeft;
+			widget.options.mapper = null;
+			compare.refresh(true);
+
+		}
+	}
+
+function highlightCommentSetup(commentpos){
+	var arrCommentPos = commentpos;
+	var compareView = compare.getCompareView();
+	var widget = compare.getCompareView().getWidget();
+	var editor = widget.getMainEditor();
+
+		//Get the line styler inside the editor
+		var annoStyler = editor.getAnnotationStyler();
+		//Add your annotation type to the editor
+		annoStyler.addAnnotationType("my.customize.commenthighlight");
+		//Add the same annotation type ot the annotation ruler(gutter)
+		editor.getAnnotationRuler().addAnnotationType("my.customize.commenthighlight");
+
+		var view = editor.getTextView();
+		var viewModel = view.getModel();
+		var annotationModel = editor.getAnnotationModel();
+		for (i=0; i<arrCommentPos.length; i++){
+			var firstLine = arrCommentPos[i][0]-1;
+			var lastLine = arrCommentPos[i][1]-1;
+			var startIndex = editor.mapOffset(viewModel.getLineStart(firstLine));
+			var endIndex = editor.mapOffset(viewModel.getLineEnd(lastLine));
+			var annotations = annotationModel.getAnnotations(startIndex, endIndex);
+			var gutter = null;
+
+			while (annotations.hasNext()) {
+				var annotation = annotations.next();
+				if (annotation.type === "my.customize.commenthighlight") {
+					gutter = annotation;
+					break;
+				}
+			}
+				var firstParam = [], seconsParam = [],
+				param = [{
+					 start: startIndex,
+					 end: endIndex,
+					 title: "",
+					 type: "my.customize.commenthighlight",
+					 html: "",
+					 style: {styleClass: "commentHighlightGutter"}, //Gutter style at the line
+					 //lineStyle: {styleClass: "commentHighlight"} //The line style in the editor
+				 }];
+				 if(gutter) {
+					firstParam = [gutter];
+				} else {
+					secondParam = param;
+				}
+				 annotationModel.replaceAnnotations(firstParam, secondParam);
+		}
+}
+
+	function animateDiffs() {
+		var widget = compare.getCompareView().getWidget();
+		if(widget.nextChange()){
+			var interval = parseInt(bAnimateInterval.options[bAnimateInterval.selectedIndex].value, 10);
+			window.setTimeout(animateDiffs, interval);
+		}
+	}
+	function onAnimateDiffs() {
+		var widget = compare.getCompareView().getWidget();
+		widget.initDiffNav();
+		var interval = parseInt(bAnimateInterval.options[bAnimateInterval.selectedIndex].value, 10);
+		window.setTimeout(animateDiffs, interval);
+	}
+	function doCompare() {
+		var widget = compare.getCompareView().getWidget();
+		if(widget.type === "twoWay"){ //$NON-NLS-0$
+			var editors = widget.getEditors();
+			var oldContents = editors[0].getTextView().getText();
+			var newContents = editors[1].getTextView().getText();
+			widget.options.oldFile.Content = oldContents;
+			widget.options.newFile.Content = newContents;
+			widget.options.mapper = null;
+			compare.refresh(true);
+
+		}
+	}
+	function doGoToLine(commentIndex){
+			 var widget = compare.getCompareView().getWidget();
+			 var editors = widget.getEditors();
+			 var editorR = editors[0];
+			 var editorL = editors[1];
+			 editorL.onGotoLine(commentIndex, 0, 0, function() {});
+
+	}
+
+	/* Adding events */
+	bCompare.onclick = doCompare;
+	bLoadSample.onclick = onLoadSample;
+	bAnimateDiffs.onclick = onAnimateDiffs;
+	bshowTheComments.onclick = showTheComments;
+	bhideTheComments.onclick = hideTheComments;
+
+	var widget = compare.getCompareView().getWidget();
+	var lineruler = document. getElementsByClassName("rulerLines");
+	});
+</script>
+<script id="showCommentTemplate" type="text/html">
+      <div class="container">
+          <div id={{id}} class="contentContainer">
+            <div class="nameAndTimeContainer">
+                <span class ="commenterAvatar"><img src={{url}}></span>
+                <span class="commenterName">{{ author }}</span>
+                <span class="commentTime">{{ date }}</span>
+                <span class="commentId">{{ id }}</span>
+            </div>
+            <div class="commentContentContainer">
+              {{{ message }}}
+            </div>
+          </div>
+        </div>
+    </script>
+</head>
+
+<body>
+    <div style="height:30px;width:99%;">
+	<table>
+	<tr>
+	<td>
+		<label style="padding-left:5px;margin-top:1px;" for="compareTypeSelect">Compare with</label>
+		<select id="compareTypeSelect" style="margin-top:5px;">
+			<option value="byTwoContents">Two text contents</option>
+			<option value="byFileURLs">Two file URLs</option>
+			<!-- <option value="byDiff">Base contents + unified diff</option> -->
+		</select>
+	</td>
+	<td id="contentTypes">
+		<label style="padding-left:5px;margin-top:1px;" for="fileTypeSelect">Content type</label>
+		<select id="contentTypeSelect" style="margin-top:5px;">
+			<option value="js">JavaScript</option>
+			<option value="html">HTML</option>
+			<option value="css">Css</option>
+			<option value="java">Java</option>
+			<option value="txt">Plain</option>
+		</select>
+	</td>
+	</tr>
+	</table>
+    </div>
+    <hr>
+    <div style="height:28px;width:99%;">
+	<table style="float:left;">
+	<tr>
+	<td>
+		<button id="loadSample" type="button">Load sample</button>
+    </td>
+	<td>
+		<button id="doCompare" type="button">Compare Again</button>
+    </td>
+	<td>
+		<button id="animateDiffs" type="button">Walk all diffs</button>
+    </td>
+	<td>
+		<label for="animateInterval">With</label>
+		<select id="animateInterval">
+			<option value="500">500ms</option>
+			<option value="1000">1000ms</option>
+			<option value="1500">1500ms</option>
+			<option value="2000">2000ms</option>
+			<option value="3000">3000ms</option>
+		</select>
+	</td>
+	<td>
+		<button id="showTheComments" type="button">Show the comments</button>
+    </td>
+		<td>
+			<button id="hideTheComments" type="button">Hide The comments</button>
+	    </td>
+	</tr>
+	</table>
+        <span id="compareCmdDiv" style="float:right;"></span>
+    </div>
+    <hr>
+    <div>
+        <div id="compareParentDiv" class="compareContainer"></div>
+    </div>
+</body>
+</html>
