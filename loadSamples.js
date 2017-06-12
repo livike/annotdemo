@@ -18,20 +18,20 @@ var sampleComments =
   },
   {
     "startLine": 17,
-    "endLine": 19,
+    "endLine": 18,
     "author": {
       "name": "User 2"
     },
     "line": 19,
     "startCharacter": 20,
-    "message": "Test comment --> startLine: 19, endLine: 19",
+    "message": "Test comment --> startLine: 17, endLine: 18",
     "id": "daeb3561_61e236d7",
     "endCharacter": 30,
     "updated": "08.07.2017",
     "replies": [
       {
         "startLine": 17,
-        "endLine": 19,
+        "endLine": 18,
         "author": {
           "name": "User 3"
         },

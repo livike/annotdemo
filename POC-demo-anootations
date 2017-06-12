@@ -179,27 +179,30 @@ if(showhide == "show"){
 
 						var startLineNumber = comment.startLine;
 						var endLineNumber = comment.endLine;
-						var startIndex = viewModel.getLineStart(startLineNumber);
-						var endIndex = viewModel.getLineStart(endLineNumber);
+						var endIndexComment = viewModel.getLineStart(endLineNumber);
+						var startIndexComment = endIndexComment;
+						var startIndexHighlight = viewModel.getLineStart(startLineNumber-1);
+						var endIndexHighlight = viewModel.getLineStart(endLineNumber);
 						var div2Insert = createDiv2Insert(comment);
 
 						commentAnnotation =
 								{
-										start: endIndex,
-										end: endIndex,
+										start: endIndexComment,
+										end: endIndexComment,
 										endLineNumber: endLineNumber,
 										title: "",
 										type: "compare.customize.commentcontent",
 										html: "",
 										rangeStyle: {styleClass: "lineHighlight", node: div2Insert}
+										//,style: {styleClass: "lineHighlightGutter1"}, //Gutter style at the line
 								};
 
 						highlightAnnotation =
 								{
-										start: startIndex,
-										end: endIndex,
-										startLineNumber: startLineNumber,
-										endLineNumber: endLineNumber,
+										start: startIndexHighlight,
+										end: endIndexHighlight,
+										// startLineNumber: startLineNumber,
+										// endLineNumber: endLineNumber,
 										title: "",
 										type: "compare.customize.linehighlight",
 										html: "",
