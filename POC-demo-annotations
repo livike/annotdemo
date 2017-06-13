@@ -53,6 +53,7 @@
 	<script>
 	/*eslint-env browser, amd*/
     require(["built-compare-amd.js"], function(Compare) {
+
 	var document = window.document;
 
 	/** Buttons */
@@ -223,6 +224,32 @@ if(showhide == "show"){
 
 }
 
+	function openComment(startLine,endLine){
+		//This function controls if the comment form is allowed to open or not
+		//if (!bpendingComment){
+				var messageSelection = document.getElementById('message');
+				messageSelection.innerHTML ="";
+				//check if there is annotation for this lines
+				var textModel = compare.getCompareView().getWidget().getMainEditor().getTextView().getModel();
+				var editor = compare.getCompareView().getWidget().getMainEditor();
+				var annotationModel = editor.getAnnotationModel();
+				var endIndex = textModel.getLineStart(endLine);
+				var startIndex = endIndex;
+				var aa = annotationModel.getAnnotations(startIndex, endIndex);
+				var openAComment = true;
+				while (aa.hasNext()) {
+					var a = aa.next();
+					if (a.type === "compare.customize.commentform" ||
+							a.type === "compare.customize.commentcontent" ||
+							a.type === "compare.customize.linehighlight"){
+								messageSelection.innerHTML = "There is already annotation for startLine:" + startLine + " and endLine: " + endLine;
+					} else{
+						messageSelection.innerHTML = "The selection startline is:" + startLine + " end line is: " + endLine;
+					}
+				}
+
+			//}
+		}
 
 	function onLoadSample() {
 		if(sampleLeft && sampleRight) {
@@ -234,56 +261,6 @@ if(showhide == "show"){
 
 		}
 	}
-
-function highlightCommentSetup(commentpos){
-	var arrCommentPos = commentpos;
-	var compareView = compare.getCompareView();
-	var widget = compare.getCompareView().getWidget();
-	var editor = widget.getMainEditor();
-
-		//Get the line styler inside the editor
-		var annoStyler = editor.getAnnotationStyler();
-		//Add your annotation type to the editor
-		annoStyler.addAnnotationType("my.customize.commenthighlight");
-		//Add the same annotation type ot the annotation ruler(gutter)
-		editor.getAnnotationRuler().addAnnotationType("my.customize.commenthighlight");
-
-		var view = editor.getTextView();
-		var viewModel = view.getModel();
-		var annotationModel = editor.getAnnotationModel();
-		for (i=0; i<arrCommentPos.length; i++){
-			var firstLine = arrCommentPos[i][0]-1;
-			var lastLine = arrCommentPos[i][1]-1;
-			var startIndex = editor.mapOffset(viewModel.getLineStart(firstLine));
-			var endIndex = editor.mapOffset(viewModel.getLineEnd(lastLine));
-			var annotations = annotationModel.getAnnotations(startIndex, endIndex);
-			var gutter = null;
-
-			while (annotations.hasNext()) {
-				var annotation = annotations.next();
-				if (annotation.type === "my.customize.commenthighlight") {
-					gutter = annotation;
-					break;
-				}
-			}
-				var firstParam = [], seconsParam = [],
-				param = [{
-					 start: startIndex,
-					 end: endIndex,
-					 title: "",
-					 type: "my.customize.commenthighlight",
-					 html: "",
-					 style: {styleClass: "commentHighlightGutter"}, //Gutter style at the line
-					 //lineStyle: {styleClass: "commentHighlight"} //The line style in the editor
-				 }];
-				 if(gutter) {
-					firstParam = [gutter];
-				} else {
-					secondParam = param;
-				}
-				 annotationModel.replaceAnnotations(firstParam, secondParam);
-		}
-}
 
 	function animateDiffs() {
 		var widget = compare.getCompareView().getWidget();
@@ -396,6 +373,9 @@ function highlightCommentSetup(commentpos){
 			<option value="3000">3000ms</option>
 		</select>
 	</td>
+	<td><div id="message" style= "color:red; border:solid 1px"> Message from the right side </div></td>
+
+	<td><p id=showselection style= "color:red; border:solid 1px"> Select the text you want to add annotation </p></td>
 	<td>
 		<button id="showTheComments" type="button">Show the comments</button>
     </td>

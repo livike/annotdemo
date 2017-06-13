@@ -21047,6 +21047,24 @@ define("orion/editor/textView", [  //$NON-NLS-1$
 				}, 0);
 			}
 		},
+    //CR
+    //catches the selection and defines the starting line and ending line of the selection, (optional: selectiontext)
+    _catchSelection: function (){
+        var selection = this._getSelection();
+        if (selection.start < selection.end) {
+          var selectiontext = window.getSelection();
+          var model = this._model;
+          var lineStart = model.getLineAtOffset(selection.start)+1;
+          var lineEnd = model.getLineAtOffset(selection.end)+1;
+          var obj = {
+            type: "commentselection",
+            firstline: lineStart,
+            lastline: lineEnd
+          }
+          //receiver.postMessage(obj,"*");
+          openComment(lineStart,lineEnd);
+      }
+    },
 		_handleRootMouseUp: function (e) {
 			if (this._ignoreEvent(e)) { return; }
 			if (util.isFirefox < 13 && e.which === 1) {
@@ -21065,6 +21083,8 @@ define("orion/editor/textView", [  //$NON-NLS-1$
 				this._fixCaret();
 				this._ignoreBlur = false;
 			}
+      //CR
+      this._catchSelection();
 		},
 		_handleBlur: function () {
 			this._cancelCheckSelection();
@@ -21511,7 +21531,7 @@ define("orion/editor/textView", [  //$NON-NLS-1$
 				this._setLinksVisible(false);
 			}
 		},
-    
+
 		_handleKeyUp: function (e) {
 			if (this._ignoreEvent(e)) { return; }
 			if (this.isListening("KeyUp")) { //$NON-NLS-1$
