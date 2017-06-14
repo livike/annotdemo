@@ -18,3 +18,5 @@
 3. when the line after the comment node have some diff annotation the highlight of the diff annotation is extended to the comment node above (is visible behind the comment)
 
 4. By positioning the cursor on a line above the comment node object and walking down with the down key, the comment node object disappears when the cursor reached his line.
+
+4a. When you click od the line right below the comment node object, the comment node object disappears. Seems to be the same bug as in 4.

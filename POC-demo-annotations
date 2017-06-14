@@ -37,55 +37,22 @@
 			background-color: #f1922e;;
 		}
 	</style>
-	<!--
-    <link rel="stylesheet" type="text/css" href="built-compare.css"/>
-	<script src="require.min.js"></script>
-	<script>
-    require(["built-compare.min.js"], function(Compare) {
-	-->
+
     <link rel="stylesheet" type="text/css" href="built-compare.css"/>
 		<link rel="stylesheet" type="text/css" href="comments.css"/>
     <script src="loadSamples.js"></script>
 		<script src="jquery-3.2.1.min.js"></script>
 		<script src="mustache.min.js"></script>
-		<script src="http://requirejs.org/docs/release/2.1.4/minified/require.js"></script>
+		<script src="require.js"></script>
 
 	<script>
-	/*eslint-env browser, amd*/
-    require(["built-compare-amd.js"], function(Compare) {
 
-	var document = window.document;
+	var compare, widget, requirePromise = new Promise(function (resolve, reject) {
 
-	/** Buttons */
-	var bCompare = document.getElementById("doCompare"); //$NON-NLS-0$
-	var bLoadSample = document.getElementById("loadSample"); //$NON-NLS-0$
-	var bAnimateDiffs = document.getElementById("animateDiffs"); //$NON-NLS-0$
-	var bAnimateInterval = document.getElementById("animateInterval"); //$NON-NLS-0$
-	var bgotoLine = document.getElementById("gotoLine1"); //$NON-NLS-0$
-
-	var bshowTheComments = document.getElementById("showTheComments");
-	var bhideTheComments = document.getElementById("hideTheComments");
-
-	var compareType = "byTwoContents"; //$NON-NLS-0$
-	var contentType = "js"; //$NON-NLS-0$
-
-
-    var options = {
-        parentDivId: "compareParentDiv", //$NON-NLS-0$
-        newFile: {
-						Name: "left." + contentType,
-            readonly: true,
-            Content: sampleLeft
-        },
-        oldFile: {
-						Name: "right." + contentType,
-            readonly: true,
-            Content: sampleRight
-        },
-				comments: sampleComments
-    };
-
-	var compare = new Compare(options, "compareCmdDiv", "twoWay", true/*toggleable*/); //$NON-NLS-1$ //$NON-NLS-0$
+	            require(["./built-compare-amd.js"], function (Compare) {
+	                resolve(Compare);
+	            });
+	        });
 
 	function _createCommentDiv(comment){
 	var template = $('#showCommentTemplate').html().trim();
@@ -151,7 +118,6 @@ function hideTheComments(){
 }
 
 function showComments(showhide) {
-			widget = compare.getCompareView().getWidget();
 		// Comments and highlighting
 		var editor = widget.getMainEditor();
 		var viewModel = editor.getTextView().getModel();
@@ -226,9 +192,7 @@ if(showhide == "show"){
 
 	function openComment(startLine,endLine){
 		//This function controls if the comment form is allowed to open or not
-		//if (!bpendingComment){
 				var messageSelection = document.getElementById('message');
-				messageSelection.innerHTML ="";
 				//check if there is annotation for this lines
 				var textModel = compare.getCompareView().getWidget().getMainEditor().getTextView().getModel();
 				var editor = compare.getCompareView().getWidget().getMainEditor();
@@ -242,14 +206,47 @@ if(showhide == "show"){
 					if (a.type === "compare.customize.commentform" ||
 							a.type === "compare.customize.commentcontent" ||
 							a.type === "compare.customize.linehighlight"){
-								messageSelection.innerHTML = "There is already annotation for startLine:" + startLine + " and endLine: " + endLine;
-					} else{
-						messageSelection.innerHTML = "The selection startline is:" + startLine + " end line is: " + endLine;
+								messageSelection.innerHTML = "There is already annotation for startLine: " + startLine + " and endLine: " + endLine;
+								openAComment = false;
 					}
 				}
-
-			//}
+					if(openAComment){
+						messageSelection.innerHTML = "The selection startline is: " + startLine + " end line is: " + endLine;
+					}
 		}
+		requirePromise.then(function (Compare) {
+			var document = window.document;
+			/** Buttons */
+			var bCompare = document.getElementById("doCompare"); //$NON-NLS-0$
+			var bLoadSample = document.getElementById("loadSample"); //$NON-NLS-0$
+			var bAnimateDiffs = document.getElementById("animateDiffs"); //$NON-NLS-0$
+			var bAnimateInterval = document.getElementById("animateInterval"); //$NON-NLS-0$
+			var bgotoLine = document.getElementById("gotoLine1"); //$NON-NLS-0$
+
+			var bshowTheComments = document.getElementById("showTheComments");
+			var bhideTheComments = document.getElementById("hideTheComments");
+
+			var compareType = "byTwoContents"; //$NON-NLS-0$
+			var contentType = "js"; //$NON-NLS-0$
+
+
+		    var options = {
+		        parentDivId: "compareParentDiv", //$NON-NLS-0$
+		        newFile: {
+								Name: "left." + contentType,
+		            readonly: true,
+		            Content: sampleLeft
+		        },
+		        oldFile: {
+								Name: "right." + contentType,
+		            readonly: true,
+		            Content: sampleRight
+		        },
+						comments: sampleComments
+		    };
+
+	compare = new Compare(options, "compareCmdDiv", "twoWay", true/*toggleable*/); //$NON-NLS-1$ //$NON-NLS-0$
+	widget = compare.getCompareView().getWidget();
 
 	function onLoadSample() {
 		if(sampleLeft && sampleRight) {
@@ -304,9 +301,9 @@ if(showhide == "show"){
 	bshowTheComments.onclick = showTheComments;
 	bhideTheComments.onclick = hideTheComments;
 
-	var widget = compare.getCompareView().getWidget();
 	var lineruler = document. getElementsByClassName("rulerLines");
-	});
+
+}); // end promise
 </script>
 <script id="showCommentTemplate" type="text/html">
       <div class="container">
@@ -373,15 +370,14 @@ if(showhide == "show"){
 			<option value="3000">3000ms</option>
 		</select>
 	</td>
-	<td><div id="message" style= "color:red; border:solid 1px"> Message from the right side </div></td>
-
-	<td><p id=showselection style= "color:red; border:solid 1px"> Select the text you want to add annotation </p></td>
 	<td>
 		<button id="showTheComments" type="button">Show the comments</button>
     </td>
 		<td>
 			<button id="hideTheComments" type="button">Hide The comments</button>
-	    </td>
+	  </td>
+		<td><p id=showselection style= "color:red;"> Select the text you want to add annotation </p></td>
+		<td><div id="message" style= "color:blue; border:solid 1px"> </div></td>
 	</tr>
 	</table>
         <span id="compareCmdDiv" style="float:right;"></span>
