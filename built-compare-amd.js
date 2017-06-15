@@ -21050,6 +21050,7 @@ define("orion/editor/textView", [  //$NON-NLS-1$
     //CR
     //catches the selection and defines the starting line and ending line of the selection, (optional: selectiontext)
     _catchSelection: function (){
+      if (this._parent.id == "compareParentDiv_left_editor_id"){
         var selection = this._getSelection();
         if (selection.start < selection.end) {
           var selectiontext = window.getSelection();
@@ -21064,6 +21065,7 @@ define("orion/editor/textView", [  //$NON-NLS-1$
           //receiver.postMessage(obj,"*");
           openComment(lineStart,lineEnd);
       }
+    }
     },
 		_handleRootMouseUp: function (e) {
 			if (this._ignoreEvent(e)) { return; }
