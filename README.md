@@ -1,6 +1,6 @@
 ## HOW TO USE:
 
-1. To run the demo, open the POC-demo-annotations.html file
+1. To run the demo, open the [POC-demo-annotations.html](POC-demo-annotations.html) file
 
 2. The left and right content is loaded automatically.
 
